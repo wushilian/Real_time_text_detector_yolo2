@@ -2,12 +2,13 @@
 most projects focus on text line detection,this project use yolo2 to detect character which is easy for recognition
 
 ## Differences from paper
-we use smooth L1 loss  and cross entropy insted of L2 loss in darknet,with smaller backbone,our speed could reach 300FPS
+we use smooth L1 loss  and cross entropy insted of L2 loss in darknet.<br>
+With smaller backbone,our speed could reach 300FPS
 ## Dependency Library
 tensorflow 1.8(low version should also be able to run)<br>
 opencv<br>
 ## How to use
-1.run train_from_Synthetic.py
+1.run train_from_Synthetic.py<br>
 2.run test.py
 
 ## example result
