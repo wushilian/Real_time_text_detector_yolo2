@@ -88,7 +88,7 @@ class Yolo_v2():
             masked_pred_wh = tf.exp(slice_tensor(masked_pred, 2, 3))
             masked_pred_o = tf.sigmoid(slice_tensor(masked_pred, 4))
             masked_pred_no_o = tf.sigmoid(slice_tensor(neg_masked_pred, 4))
-            masked_pred_c = tf.nn.softmax(slice_tensor(masked_pred, 5, 41))
+            masked_pred_c = slice_tensor(masked_pred, 5, cfg.num_classes+5)
 
 
         with tf.name_scope('lab'):
@@ -98,12 +98,10 @@ class Yolo_v2():
             masked_label_c_vec = tf.reshape(tf.one_hot(tf.cast(masked_label_c, tf.int32), depth=cfg.num_classes),
                                             shape=(-1, cfg.num_classes))
 
-        with tf.name_scope('merge'):
+        with tf.name_scope('loss'):
             with tf.name_scope('loss_xy'):
-                #loss_xy = tf.reduce_mean(tf.square(masked_pred_xy - masked_label_xy))
                 self.loss_xy = tf.reduce_mean(smooth_L1(masked_pred_xy - masked_label_xy))
             with tf.name_scope('loss_wh'):
-                #loss_wh = tf.reduce_mean(tf.square(masked_pred_wh - masked_label_wh))
                 self.loss_wh=tf.reduce_mean(smooth_L1(masked_pred_wh - masked_label_wh))
             with tf.name_scope('loss_obj'):
                 loss_obj = tf.reduce_mean(tf.square(masked_pred_o - 1))
@@ -112,7 +110,7 @@ class Yolo_v2():
             with tf.name_scope('loss_class'):
                 loss_c=tf.nn.softmax_cross_entropy_with_logits(labels=masked_label_c_vec,logits=masked_pred_c)
                 self.loss_c=tf.reduce_mean(loss_c)
-                #loss_c = tf.reduce_mean(tf.square(masked_pred_c - masked_label_c_vec))
+                
 
             loss = lambda_coord * (self.loss_xy + self.loss_wh) + loss_obj + lambda_no_obj * loss_no_obj + self.loss_c
 
