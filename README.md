@@ -8,8 +8,13 @@ With smaller backbone,our speed could reach 300FPS
 tensorflow 1.8(low version should also be able to run)<br>
 opencv<br>
 ## How to use
+### train from synthetic data
 1.run train_from_Synthetic.py<br>
-2.run test.py
+2.run test.py<br>
+### train from real data
+1.put your image in data/image<br>
+2.put your label in data/label<br>
+3.run train.py
 
 ## example result
  ![image](https://github.com/wushilian/Real_time_text_detector_yolo2/raw/master/result/result.jpg)
