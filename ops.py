@@ -158,9 +158,11 @@ def make_label_imgs(imgs, rois, classes):
             active_indxs = get_active_anchors(roi, anchors)
             grid_x, grid_y = get_grid_cell(roi)
             #print(grid_x,grid_y,roi)
-            for active_indx in active_indxs:
-                anchor_label = roi2label(roi, anchors[active_indx], raw_w, raw_h,cfg.Grid_w,cfg.Grid_h)
-                label[grid_y, grid_x, active_indx] = np.concatenate((anchor_label, [cls], [1.0]))
+            if grid_x<25 and grid_y<25:
+                #print(grid_x,grid_y,roi)
+                for active_indx in active_indxs:
+                    anchor_label = roi2label(roi, anchors[active_indx], raw_w, raw_h,cfg.Grid_w,cfg.Grid_h)
+                    label[grid_y, grid_x, active_indx] = np.concatenate((anchor_label, [cls], [1.0]))
 
         labels.append(label)
     return np.array(imgs),np.array(labels)
