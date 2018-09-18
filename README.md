@@ -13,5 +13,6 @@ opencv<br>
 
 ## example result
  ![image](https://github.com/wushilian/Real_time_text_detector_yolo2/raw/master/result/result.jpg)
+ ![image](https://github.com/wushilian/Real_time_text_detector_yolo2/raw/master/result/cls.jpg)
  
 ## wait to update
