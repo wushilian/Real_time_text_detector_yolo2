@@ -4,7 +4,7 @@ import cv2
 import config as cfg
 from model import Yolo_v2
 from matplotlib import pyplot as plt
-
+from time import time
 
 
 
@@ -42,8 +42,9 @@ def preprocess_data(data, anchors):
                 scale_w =cfg.img_width*1.0/cfg.Grid_w
                 scale_h = cfg.img_height*1.0/cfg.Grid_h
 
-                w = np.exp(data[0, i, j, k, 2]) * anchors[k][0]# * scale_w
-                h = np.exp(data[0, i, j, k, 3]) * anchors[k][1]# * scale_h
+                w = np.exp(data[0, i, j, k, 2]) * anchors[k][0]* scale_w
+                h = np.exp(data[0, i, j, k, 3]) * anchors[k][1]* scale_h
+
                 dx = sigmoid(data[0, i, j, k, 0])
                 dy = sigmoid(data[0, i, j, k, 1])
                 x = (j + dx) * scale_w - w / 2.0
@@ -93,7 +94,7 @@ def non_max_supression(classes, locations):
 
 def draw(classes, rois, indxs, img):
 
-
+    img=cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
 
     for class_idx, c in enumerate(classes):
         for loc_idx, class_prob in enumerate(c):
@@ -105,10 +106,11 @@ def draw(classes, rois, indxs, img):
                 w = int(rois[indxs[class_idx][loc_idx]][2])
                 h = int(rois[indxs[class_idx][loc_idx]][3])
                 #print(x,y,w,h)
-                img=cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,0), 4)
-                #font = cv2.FONT_HERSHEY_SIMPLEX
-                #text = names[class_idx] + ' %.2f' % class_prob
-                #cv2.putText(img, text, (x, y - 8), font, 0.7, colors[class_idx], 2, cv2.LINE_AA)
+                #img=cv2.rectangle(img, (x-int(w/2), y-int(h/2)), (x + int(w/2), y +int(h/2)), (255,255,0), 2)
+                img = cv2.rectangle(img, (x , y), (x + w, y + h),(255, 255, 0), 2)
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                text = cfg.classes[class_idx]# + ' %.2f' % class_prob
+                img=cv2.putText(img, text, (x, y - 5), font, 0.7, (255,0,0), 2, cv2.LINE_AA)
 
     return img
 # ---------------------------------------------------------------------------
@@ -124,16 +126,20 @@ def test():
     ckpt=tf.train.latest_checkpoint(cfg.check_point)
     saver.restore(sess, ckpt)
 
-    img=cv2.imread('1.jpg',0)
+    img=cv2.imread('0_1306.bmp',0)
     img_for_net = cv2.resize(img, (cfg.img_width,cfg.img_height))
+    img=img_for_net.copy()
     img_for_net = img_for_net / 255.0
-    data = sess.run(yolo.pred, feed_dict={yolo.img:np.array([img_for_net[...,np.newaxis]])})
-
+    for i in range(10):
+        t1=time()
+        data = sess.run(yolo.pred, feed_dict={yolo.img:np.array([img_for_net[...,np.newaxis]])})
+        t2=time()
+        print(t2-t1)
     classes, rois = preprocess_data(data, anchors)
     #print(classes.shape)
     classes, indxs = non_max_supression(classes, rois)
     img=draw(classes, rois, indxs, img)
-
+    cv2.imwrite('result.jpg',img)
     plt.imshow(img)
     plt.show()
 
@@ -143,4 +149,7 @@ if __name__ == "__main__":
     import os
 
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    #im=cv2.imread('0_1306.bmp')
+    #plt.imshow(im)
+    #plt.show()
     test()
