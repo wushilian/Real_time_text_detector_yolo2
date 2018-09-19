@@ -73,7 +73,7 @@ def Draw_char():
     im = Image.fromarray(image)
     draw=ImageDraw.Draw(im)
     max_lines=7#max lines in image
-    min_lines=3
+    min_lines=5
     curr_lines=random.randint(min_lines,max_lines+1)
     curr_fonts=[]   #all lines fonts
     cur_height=[0]
@@ -90,7 +90,7 @@ def Draw_char():
     for i in range(curr_lines):
         x_point = random.randint(2, 10)
         font=curr_fonts[i]
-        txt=random.sample(classes,random.randint(2,4))
+        txt=random.sample(classes,random.randint(10,15))
         for j in range(len(txt)):
             txt_img=Image.new('L',(font.size+2,font.size+2),0)
             d=ImageDraw.Draw(txt_img)
@@ -107,10 +107,10 @@ def Draw_char():
 
             im.paste(wa,(x_point,cur_height[i]),mask)
             #draw.rectangle(((x_point + x_, cur_height[i] + y_), (x_point + w, cur_height[i] + h)))
-            rois.append([x_point + x_, cur_height[i] + y_,w,h])
+            rois.append([x_point + x_+int(w/2), cur_height[i] + y_+int(h/2),w,h])
             #category.append(txt[j])
-            #category.append(classes.index(txt[j]))
-            category.append(0)
+            category.append(classes.index(txt[j]))
+            #category.append(0)
             x_point+=w+x_#+random.randint(0,5)
     im=np.array(im)
     p = augmentation(im)
