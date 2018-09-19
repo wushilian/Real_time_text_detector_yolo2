@@ -107,35 +107,6 @@ def onehot(idx, num):
     return ret
 
 
-def make_label_(filenames, rois, classes):
-    anchors =cfg.anchors
-    n_anchors = np.shape(anchors)[0]
-    imgs=[]
-    labels=[]
-    for filename, rois, classes in zip(filenames, rois, classes):
-
-        rois = np.array(rois, dtype=np.float32)
-        classes = np.array(classes, dtype=np.int32)
-
-        img = cv2.imread(filename)
-        raw_h = np.shape(img)[0]
-        raw_w = np.shape(img)[1]
-        img = cv2.resize(img, (cfg.img_width,cfg.img_height))
-
-        label = np.zeros([cfg.Grid_h,cfg.Grid_w, n_anchors, 6], dtype=np.float32)
-
-        for roi, cls in zip(rois, classes):
-
-            active_indxs = get_active_anchors(roi, anchors)
-            grid_x, grid_y = get_grid_cell(roi, raw_w, raw_h,cfg.Grid_w,cfg.Grid_h)
-
-            for active_indx in active_indxs:
-                anchor_label = roi2label(roi, anchors[active_indx], raw_w, raw_h,cfg.Grid_w,cfg.Grid_h)
-                label[grid_y, grid_x, active_indx] = np.concatenate((anchor_label, [cls], [1.0]))
-        imgs.append(img)
-        labels.append(label)
-    return np.array(imgs),np.array(labels)
-
 def make_label_imgs(imgs, rois, classes):
     anchors = cfg.anchors
     n_anchors = np.shape(anchors)[0]
@@ -154,11 +125,13 @@ def make_label_imgs(imgs, rois, classes):
         label = np.zeros([cfg.Grid_h,cfg.Grid_w, n_anchors, 6], dtype=np.float32)
 
         for roi, cls in zip(rois, classes):
+            roi[2]=roi[2]*cfg.Grid_w/cfg.img_width
+            roi[3]=roi[3]*cfg.Grid_h/cfg.img_height
 
             active_indxs = get_active_anchors(roi, anchors)
+            #print(active_indxs)
             grid_x, grid_y = get_grid_cell(roi)
-            #print(grid_x,grid_y,roi)
-            if grid_x<25 and grid_y<25:
+            if grid_x<cfg.Grid_w and grid_y<cfg.Grid_h:
                 #print(grid_x,grid_y,roi)
                 for active_indx in active_indxs:
                     anchor_label = roi2label(roi, anchors[active_indx], raw_w, raw_h,cfg.Grid_w,cfg.Grid_h)
